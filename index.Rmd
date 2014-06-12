@@ -82,9 +82,9 @@ On the fig. 1 we can see the most important variables for the predicting model.
 
 Variable  | Mean Decrease in Accuracy
 ----------| -------------
-yaw_belt          | 46.85290
-roll_belt         | 42.83677
-magnet_dumbbell_z | 41.57366
+yaw_belt          | 51.94487
+roll_belt         | 47.18061
+magnet_dumbbell_z | 41.88002
 
 Let's plot these three variables. On the figures 2-4 we can see the relationship between those variables. We color grouped the points based on the 5 levels of activities quality. The figures show rather complicated patterns which cannot be linearly separated, thus, we used random forest.
 
