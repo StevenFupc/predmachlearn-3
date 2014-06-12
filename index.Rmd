@@ -7,6 +7,7 @@ Nowadays it is possible to collect a large amount of data about personal activit
 ### Data Collection
 According to [this paper](http://groupware.les.inf.puc-rio.br/har) six young health participants were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different fashions: exactly according to the specification (Class A), throwing the elbows to the front (Class B), lifting the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class D) and throwing the hips to the front (Class E). The data were recorded from accelerometers. We downloaded [train](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv) and [test](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv) datasets on the 2nd of June, 2014.
 ```{r echo=TRUE}
+set.seed(1111)
 library(caret, quietly=T)
 setwd("~/Doc/Coursera/PractML/proj")
 data <- read.csv("train.csv", na.strings="NA", header=T)
@@ -82,9 +83,9 @@ On the fig. 1 we can see the most important variables for the predicting model.
 
 Variable  | Mean Decrease in Accuracy
 ----------| -------------
-yaw_belt          | 51.94487
-roll_belt         | 47.18061
-magnet_dumbbell_z | 41.88002
+yaw_belt          | 51.84860
+roll_belt         | 45.92186
+pitch_belt        | 43.11729
 
 Let's plot these three variables. On the figures 2-4 we can see the relationship between those variables. We color grouped the points based on the 5 levels of activities quality. The figures show rather complicated patterns which cannot be linearly separated, thus, we used random forest.
 
@@ -96,16 +97,16 @@ plot(valid$yaw_belt, valid$roll_belt,
      ylab="Roll belt", 
      main="Fig. 2",col=as.numeric(validC), pch=19, cex=.5)
 
-plot(valid$yaw_belt,valid$magnet_dumbbell_z,
+plot(valid$yaw_belt,valid$pitch_belt,
      xlab="Yaw belt", 
-     ylab="Magnet dumbbell for z axis", 
+     ylab="Pitch belt", 
      main="Fig. 3",col=as.numeric(validC), pch=19, cex=.5)
 
-plot(valid$roll_belt,valid$magnet_dumbbell_z,
+plot(valid$roll_belt,valid$pitch_belt,
      xlab="Roll belt", 
-     ylab="Magnet dumbbell for z axis", 
+     ylab="Pitch belt", 
      main="Fig. 4",col=as.numeric(validC), pch=19, cex=.5)
-plot.new(); 
+plot.new()
 legend("center", legend=levels(validC), cex=2, text.col=seq_along(levels(validC)))
 ```
 We tested out model on validation set and observed a confusion matrix for the validation set.
@@ -113,7 +114,7 @@ We tested out model on validation set and observed a confusion matrix for the va
 predRF <- predict(fitRF, valid)
 confusionMatrix(predRF, validC)
 ```
-Out of sample error is about 0.8%. Finally we tested our model on the 20 test cases available in the test data. We got 100% prediction accuracy.
+Out of sample error is about 0.63%. Finally we tested our model on the 20 test cases available in the test data. We got 100% prediction accuracy.
 ```{r echo=TRUE, eval=FALSE}
 predRFT <- predict(fitRF, test)
 answer <- as.character(predRFT)

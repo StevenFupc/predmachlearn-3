@@ -8,6 +8,7 @@ Nowadays it is possible to collect a large amount of data about personal activit
 According to [this paper](http://groupware.les.inf.puc-rio.br/har) six young health participants were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different fashions: exactly according to the specification (Class A), throwing the elbows to the front (Class B), lifting the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class D) and throwing the hips to the front (Class E). The data were recorded from accelerometers. We downloaded [train](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv) and [test](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv) datasets on the 2nd of June, 2014.
 
 ```r
+set.seed(1111)
 library(caret, quietly = T)
 setwd("~/Doc/Coursera/PractML/proj")
 data <- read.csv("train.csv", na.strings = "NA", header = T)
@@ -106,9 +107,9 @@ On the fig. 1 we can see the most important variables for the predicting model.
 
 Variable  | Mean Decrease in Accuracy
 ----------| -------------
-yaw_belt          | 51.94487
-roll_belt         | 47.18061
-magnet_dumbbell_z | 41.88002
+yaw_belt          | 51.84860
+roll_belt         | 45.92186
+pitch_belt        | 43.11729
 
 Let's plot these three variables. On the figures 2-4 we can see the relationship between those variables. We color grouped the points based on the 5 levels of activities quality. The figures show rather complicated patterns which cannot be linearly separated, thus, we used random forest.
 
@@ -119,10 +120,10 @@ valid <- data.frame(valid)
 plot(valid$yaw_belt, valid$roll_belt, xlab = "Yaw belt", ylab = "Roll belt", 
     main = "Fig. 2", col = as.numeric(validC), pch = 19, cex = 0.5)
 
-plot(valid$yaw_belt, valid$magnet_dumbbell_z, xlab = "Yaw belt", ylab = "Magnet dumbbell for z axis", 
+plot(valid$yaw_belt, valid$pitch_belt, xlab = "Yaw belt", ylab = "Pitch belt", 
     main = "Fig. 3", col = as.numeric(validC), pch = 19, cex = 0.5)
 
-plot(valid$roll_belt, valid$magnet_dumbbell_z, xlab = "Roll belt", ylab = "Magnet dumbbell for z axis", 
+plot(valid$roll_belt, valid$pitch_belt, xlab = "Roll belt", ylab = "Pitch belt", 
     main = "Fig. 4", col = as.numeric(validC), pch = 19, cex = 0.5)
 plot.new()
 legend("center", legend = levels(validC), cex = 2, text.col = seq_along(levels(validC)))
@@ -142,36 +143,36 @@ confusionMatrix(predRF, validC)
 ## 
 ##           Reference
 ## Prediction    A    B    C    D    E
-##          A 1658   11    0    0    0
-##          B    0 1135    5    0    0
-##          C    2    4 1007   18    1
-##          D    0    0    0  942    7
-##          E    0    0    0    1 1093
+##          A 1663   11    0    0    0
+##          B    0 1127   10    0    0
+##          C    0    2 1019   13    0
+##          D    0    0    1  967    0
+##          E    0    0    0    0 1071
 ## 
 ## Overall Statistics
 ##                                         
-##                Accuracy : 0.992         
-##                  95% CI : (0.989, 0.994)
-##     No Information Rate : 0.282         
+##                Accuracy : 0.994         
+##                  95% CI : (0.991, 0.996)
+##     No Information Rate : 0.283         
 ##     P-Value [Acc > NIR] : <2e-16        
 ##                                         
-##                   Kappa : 0.989         
+##                   Kappa : 0.992         
 ##  Mcnemar's Test P-Value : NA            
 ## 
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity             0.999    0.987    0.995    0.980    0.993
-## Specificity             0.997    0.999    0.995    0.999    1.000
-## Pos Pred Value          0.993    0.996    0.976    0.993    0.999
-## Neg Pred Value          1.000    0.997    0.999    0.996    0.998
-## Prevalence              0.282    0.195    0.172    0.163    0.187
-## Detection Rate          0.282    0.193    0.171    0.160    0.186
-## Detection Prevalence    0.284    0.194    0.175    0.161    0.186
-## Balanced Accuracy       0.998    0.993    0.995    0.989    0.996
+## Sensitivity             1.000    0.989    0.989    0.987    1.000
+## Specificity             0.997    0.998    0.997    1.000    1.000
+## Pos Pred Value          0.993    0.991    0.985    0.999    1.000
+## Neg Pred Value          1.000    0.997    0.998    0.997    1.000
+## Prevalence              0.283    0.194    0.175    0.167    0.182
+## Detection Rate          0.283    0.192    0.173    0.164    0.182
+## Detection Prevalence    0.285    0.193    0.176    0.165    0.182
+## Balanced Accuracy       0.999    0.993    0.993    0.993    1.000
 ```
 
-Out of sample error is about 0.8%. Finally we tested our model on the 20 test cases available in the test data. We got 100% prediction accuracy.
+Out of sample error is about 0.63%. Finally we tested our model on the 20 test cases available in the test data. We got 100% prediction accuracy.
 
 ```r
 predRFT <- predict(fitRF, test)
