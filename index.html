@@ -1,36 +1,44 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-
   <head>
-    <meta charset='utf-8' />
-    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Predmachlearn : " />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Predmachlearn by kailex</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/main.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
-
-    <title>Predmachlearn</title>
   </head>
-
   <body>
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/kailex/predmachlearn">View on GitHub</a>
+      <header>
+        <h1>Predmachlearn</h1>
+        <p></p>
+      </header>
 
-          <h1 id="project_title">Predmachlearn</h1>
-          <h2 id="project_tagline"></h2>
+      <div id="banner">
+        <span id="logo"></span>
 
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/kailex/predmachlearn/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/kailex/predmachlearn/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
+        <a href="https://github.com/kailex/predmachlearn" class="button fork"><strong>View On GitHub</strong></a>
+        <div class="downloads">
+          <span>Downloads:</span>
+          <ul>
+            <li><a href="https://github.com/kailex/predmachlearn/zipball/master" class="button">ZIP</a></li>
+            <li><a href="https://github.com/kailex/predmachlearn/tarball/master" class="button">TAR</a></li>
+          </ul>
+        </div>
+      </div><!-- end banner -->
 
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
+    <div class="wrapper">
+      <nav>
+        <ul></ul>
+      </nav>
+      <section>
         <h1>
 <a name="activity-quality-prediction" class="anchor" href="#activity-quality-prediction"><span class="octicon octicon-link"></span></a>Activity Quality Prediction</h1>
 
@@ -134,7 +142,7 @@ authors, the Random forest does not overfit. We built the model for the outcome 
 <div class="highlight highlight-r"><pre>varImpPlot<span class="p">(</span>fitRF<span class="p">,</span> n.var <span class="o">=</span> <span class="m">5</span><span class="p">,</span> type <span class="o">=</span> <span class="m">1</span><span class="p">,</span> main <span class="o">=</span> <span class="s">"Fig. 1. Variable Importance"</span><span class="p">)</span>
 </pre></div>
 
-<p><img src="https://github.com/kailex/predmachlearn/blob/master/figure/unnamed-chunk-5.png" alt=""></p>
+<p><img src="figure/unnamed-chunk-5.png" alt="plot of chunk unnamed-chunk-5"></p>
 
 <p>With number of trees of 317 the Random Forest was successfully trained and the estimated OOB error rate (in sample error) for the training set was 0.52%. We don't need to do cross-validation as random forest uses bootstrap samples from the train set.</p>
 
@@ -178,7 +186,7 @@ plot.new<span class="p">()</span>
 legend<span class="p">(</span><span class="s">"center"</span><span class="p">,</span> legend <span class="o">=</span> <span class="kp">levels</span><span class="p">(</span>validC<span class="p">),</span> cex <span class="o">=</span> <span class="m">2</span><span class="p">,</span> text.col <span class="o">=</span> <span class="kp">seq_along</span><span class="p">(</span><span class="kp">levels</span><span class="p">(</span>validC<span class="p">)))</span>
 </pre></div>
 
-<p><img src="https://github.com/kailex/predmachlearn/blob/master/figure/unnamed-chunk-6.png" alt=""></p>
+<p><img src="figure/unnamed-chunk-6.png" alt="plot of chunk unnamed-chunk-6"></p>
 
 <p>We tested out model on validation set and observed a confusion matrix for the validation set.</p>
 
@@ -240,17 +248,12 @@ pml_write_files<span class="p">(</span>answer<span class="p">)</span>
 <p>In this paper we proposed a predictive model based on Random Forest. This model provides high accuracy in identifying of activity quality. Also it reveals the most important variables for prediction.
 Some potential problems should be noted. As it's stated by the author, Random Forest does not need “cross-validation or a separate test set to get an unbiased estimate of the test set error” but that's true only for independent and identically-distributed data. Also we should mention that the measure of importance of variables can be biased. Thus, variable importance can be overestimated.</p>
       </section>
-    </div>
-
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Predmachlearn maintained by <a href="https://github.com/kailex">kailex</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      <footer>
+        <p>Project maintained by <a href="https://github.com/kailex">kailex</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></small></p>
       </footer>
     </div>
-
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
     
-
   </body>
 </html>
