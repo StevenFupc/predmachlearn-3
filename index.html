@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Predmachlearn : " />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Predmachlearn</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/kailex/predmachlearn">View on GitHub</a>
+
+          <h1 id="project_title">Predmachlearn</h1>
+          <h2 id="project_tagline"></h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/kailex/predmachlearn/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/kailex/predmachlearn/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="activity-quality-prediction" class="anchor" href="#activity-quality-prediction"><span class="octicon octicon-link"></span></a>Activity Quality Prediction</h1>
+
+<h2>
+<a name="introduction" class="anchor" href="#introduction"><span class="octicon octicon-link"></span></a>Introduction</h2>
+
+<p>Nowadays it is possible to collect a large amount of data about personal activity using devices such as Jawbone Up, Nike FuelBand, and Fitbit. These devices are popular among enthusiasts like sportsmen, scientists and of cause tech geeks. In this project we will use data collected from accelerometers on the belt, forearm, arm, and dumbell of 6 participants to predict activity quality. </p>
+
+<h2>
+<a name="methods" class="anchor" href="#methods"><span class="octicon octicon-link"></span></a>Methods</h2>
+
+<h3>
+<a name="data-collection" class="anchor" href="#data-collection"><span class="octicon octicon-link"></span></a>Data Collection</h3>
+
+<p>According to <a href="http://groupware.les.inf.puc-rio.br/har">this paper</a> six young health participants were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different fashions: exactly according to the specification (Class A), throwing the elbows to the front (Class B), lifting the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class D) and throwing the hips to the front (Class E). The data were recorded from accelerometers. We downloaded <a href="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv">train</a> and <a href="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv">test</a> datasets on the 2nd of June, 2014.</p>
+
+<div class="highlight highlight-r"><pre><span class="kp">set.seed</span><span class="p">(</span><span class="m">1111</span><span class="p">)</span>
+<span class="kn">library</span><span class="p">(</span>caret<span class="p">,</span> quietly <span class="o">=</span> <span class="bp">T</span><span class="p">)</span>
+<span class="kp">setwd</span><span class="p">(</span><span class="s">"~/Doc/Coursera/PractML/proj"</span><span class="p">)</span>
+data <span class="o">&lt;-</span> read.csv<span class="p">(</span><span class="s">"train.csv"</span><span class="p">,</span> na.strings <span class="o">=</span> <span class="s">"NA"</span><span class="p">,</span> header <span class="o">=</span> <span class="bp">T</span><span class="p">)</span>
+data <span class="o">&lt;-</span> data<span class="p">[</span><span class="kp">sample</span><span class="p">(</span><span class="kp">nrow</span><span class="p">(</span>data<span class="p">)),</span> <span class="p">]</span>
+inTrain <span class="o">&lt;-</span> createDataPartition<span class="p">(</span>data<span class="o">$</span>X<span class="p">,</span> p <span class="o">=</span> <span class="m">0.7</span><span class="p">)[[</span><span class="m">1</span><span class="p">]]</span>
+train <span class="o">&lt;-</span> data<span class="p">[</span>inTrain<span class="p">,</span> <span class="p">]</span>
+valid <span class="o">&lt;-</span> data<span class="p">[</span><span class="o">-</span>inTrain<span class="p">,</span> <span class="p">]</span>
+test <span class="o">&lt;-</span> read.csv<span class="p">(</span><span class="s">"test.csv"</span><span class="p">,</span> na.strings <span class="o">=</span> <span class="s">"NA"</span><span class="p">,</span> header <span class="o">=</span> <span class="bp">T</span><span class="p">)</span>
+</pre></div>
+
+<h3>
+<a name="exploratory-analysis" class="anchor" href="#exploratory-analysis"><span class="octicon octicon-link"></span></a>Exploratory Analysis</h3>
+
+<p>Exploratory analysis was performed by examining tables of the observed data. Having observed them, we identified transformations to perform on the raw data. Exploratory analysis was used to</p>
+
+<ol>
+<li> Verify the quality of the data</li>
+<li> Identify missing values</li>
+<li> Determine the terms to be used in the predictive model. </li>
+</ol><p>We found that the train set contained 1287472 missing values, the test set had 2000 missing values. As the number of NA's in columns was relativly big we deleted those columns. Also we deleted the columns with service information such as "X", "cvtd_timestamp", etc.</p>
+
+<div class="highlight highlight-r"><pre>idx2remove <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>df<span class="p">)</span> <span class="p">{</span>
+    idx <span class="o">&lt;-</span> <span class="kt">c</span><span class="p">()</span>
+    <span class="kr">for</span> <span class="p">(</span>i <span class="kr">in</span> <span class="m">1</span><span class="o">:</span><span class="kp">dim</span><span class="p">(</span>df<span class="p">)[</span><span class="m">2</span><span class="p">])</span> <span class="p">{</span>
+        <span class="kr">if</span> <span class="p">(</span><span class="kp">sum</span><span class="p">(</span><span class="kp">is.na</span><span class="p">(</span>df<span class="p">[,</span> i<span class="p">]))</span><span class="o">/</span><span class="kp">dim</span><span class="p">(</span>df<span class="p">)[</span><span class="m">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="m">0.1</span><span class="p">)</span> 
+            idx <span class="o">&lt;-</span> <span class="kt">c</span><span class="p">(</span>idx<span class="p">,</span> i<span class="p">)</span>
+    <span class="p">}</span>
+    <span class="kr">return</span><span class="p">(</span>idx<span class="p">)</span>
+<span class="p">}</span>
+col.to.remove <span class="o">&lt;-</span> <span class="kp">unique</span><span class="p">(</span><span class="kt">c</span><span class="p">(</span>idx2remove<span class="p">(</span>train<span class="p">),</span> idx2remove<span class="p">(</span>valid<span class="p">),</span> idx2remove<span class="p">(</span>test<span class="p">)))</span>
+
+trainC <span class="o">&lt;-</span> train<span class="o">$</span>classe
+train <span class="o">&lt;-</span> train<span class="p">[,</span> <span class="o">-</span><span class="kt">c</span><span class="p">(</span>col.to.remove<span class="p">)]</span>
+
+validC <span class="o">&lt;-</span> valid<span class="o">$</span>classe
+valid <span class="o">&lt;-</span> valid<span class="p">[,</span> <span class="o">-</span><span class="kt">c</span><span class="p">(</span>col.to.remove<span class="p">)]</span>
+
+testC <span class="o">&lt;-</span> test<span class="o">$</span>problem_id
+test <span class="o">&lt;-</span> test<span class="p">[,</span> <span class="o">-</span><span class="kt">c</span><span class="p">(</span>col.to.remove<span class="p">)]</span>
+
+train <span class="o">&lt;-</span> train<span class="p">[,</span> <span class="kp">sapply</span><span class="p">(</span>train<span class="p">,</span> <span class="kp">is.numeric</span><span class="p">)]</span>
+valid <span class="o">&lt;-</span> valid<span class="p">[,</span> <span class="kp">sapply</span><span class="p">(</span>valid<span class="p">,</span> <span class="kp">is.numeric</span><span class="p">)]</span>
+test <span class="o">&lt;-</span> test<span class="p">[,</span> <span class="kp">sapply</span><span class="p">(</span>test<span class="p">,</span> <span class="kp">is.numeric</span><span class="p">)]</span>
+</pre></div>
+
+<h3>
+<a name="confounders" class="anchor" href="#confounders"><span class="octicon octicon-link"></span></a>Confounders</h3>
+
+<p>We identified variables with correlation over 0.9. This step allowed us to remove 3 additional columns from the each data set. </p>
+
+<div class="highlight highlight-r"><pre>num.idx <span class="o">&lt;-</span> <span class="kp">which</span><span class="p">(</span><span class="kp">sapply</span><span class="p">(</span>train<span class="p">,</span> <span class="kp">class</span><span class="p">)</span> <span class="o">==</span> <span class="s">"numeric"</span><span class="p">)</span>
+descrCorr <span class="o">&lt;-</span> <span class="kp">abs</span><span class="p">(</span>cor<span class="p">(</span>train<span class="p">[,</span> num.idx<span class="p">]))</span>
+highCorr <span class="o">&lt;-</span> findCorrelation<span class="p">(</span>descrCorr<span class="p">,</span> <span class="m">0.9</span><span class="p">)</span>
+highCorrCol <span class="o">&lt;-</span> <span class="kp">dimnames</span><span class="p">(</span>descrCorr<span class="p">[,</span> highCorr<span class="p">])[[</span><span class="m">2</span><span class="p">]]</span>
+train <span class="o">&lt;-</span> train<span class="p">[,</span> <span class="o">!</span><span class="kp">names</span><span class="p">(</span>train<span class="p">)</span> <span class="o">%in%</span> <span class="kt">c</span><span class="p">(</span>highCorrCol<span class="p">,</span> <span class="s">"X"</span><span class="p">,</span> <span class="s">"cvtd_timestamp"</span><span class="p">,</span> <span class="s">"raw_timestamp_part_1"</span><span class="p">,</span> 
+    <span class="s">"raw_timestamp_part_2"</span><span class="p">,</span> <span class="s">"num_window"</span><span class="p">,</span> <span class="s">"classe"</span><span class="p">)]</span>
+valid <span class="o">&lt;-</span> valid<span class="p">[,</span> <span class="o">!</span><span class="kp">names</span><span class="p">(</span>valid<span class="p">)</span> <span class="o">%in%</span> <span class="kt">c</span><span class="p">(</span>highCorrCol<span class="p">,</span> <span class="s">"X"</span><span class="p">,</span> <span class="s">"cvtd_timestamp"</span><span class="p">,</span> <span class="s">"raw_timestamp_part_1"</span><span class="p">,</span> 
+    <span class="s">"raw_timestamp_part_2"</span><span class="p">,</span> <span class="s">"num_window"</span><span class="p">,</span> <span class="s">"classe"</span><span class="p">)]</span>
+test <span class="o">&lt;-</span> test<span class="p">[,</span> <span class="o">!</span><span class="kp">names</span><span class="p">(</span>test<span class="p">)</span> <span class="o">%in%</span> <span class="kt">c</span><span class="p">(</span>highCorrCol<span class="p">,</span> <span class="s">"X"</span><span class="p">,</span> <span class="s">"cvtd_timestamp"</span><span class="p">,</span> <span class="s">"raw_timestamp_part_1"</span><span class="p">,</span> 
+    <span class="s">"raw_timestamp_part_2"</span><span class="p">,</span> <span class="s">"num_window"</span><span class="p">,</span> <span class="s">"problem_id"</span><span class="p">)]</span>
+train <span class="o">&lt;-</span> <span class="kp">sapply</span><span class="p">(</span>train<span class="p">,</span> <span class="kp">as.numeric</span><span class="p">)</span>
+valid <span class="o">&lt;-</span> <span class="kp">sapply</span><span class="p">(</span>valid<span class="p">,</span> <span class="kp">as.numeric</span><span class="p">)</span>
+test <span class="o">&lt;-</span> <span class="kp">as.matrix</span><span class="p">(</span><span class="kp">sapply</span><span class="p">(</span>test<span class="p">,</span> <span class="kp">as.numeric</span><span class="p">))</span>
+</pre></div>
+
+<h3>
+<a name="statistical-modeling" class="anchor" href="#statistical-modeling"><span class="octicon octicon-link"></span></a>Statistical Modeling</h3>
+
+<p>A simple linear or logistic regression is not a proper choice for building a predictive model with high-dimensional input data. We chose Random Forest from the <strong>randomForest</strong> package. <a href="http://www.stat.berkeley.edu/%7Ebreiman/RandomForests/cc_home.htm" title='Random Forests"'>“It runs efficiently on large data bases and can handle thousands of input variables without variable deletion. It gives estimates of what variables are important in the classification. It has methods for balancing error in class population unbalanced data sets”</a>. As stated by the
+authors, the Random forest does not overfit. We built the model for the outcome variable <em>classe</em> using 49 predictive variables. </p>
+
+<div class="highlight highlight-r"><pre><span class="kn">library</span><span class="p">(</span>randomForest<span class="p">,</span> quietly <span class="o">=</span> <span class="bp">T</span><span class="p">)</span>
+</pre></div>
+
+<pre><code>## randomForest 4.6-7
+## Type rfNews() to see new features/changes/bug fixes.
+</code></pre>
+
+<div class="highlight highlight-r"><pre>fitRF <span class="o">&lt;-</span> randomForest<span class="p">(</span>x <span class="o">=</span> train<span class="p">,</span> y <span class="o">=</span> trainC<span class="p">,</span> importance <span class="o">=</span> <span class="bp">T</span><span class="p">,</span> ntree <span class="o">=</span> <span class="m">317</span><span class="p">)</span>
+</pre></div>
+
+<p>Here we can see 5 the most important variables</p>
+
+<div class="highlight highlight-r"><pre>varImpPlot<span class="p">(</span>fitRF<span class="p">,</span> n.var <span class="o">=</span> <span class="m">5</span><span class="p">,</span> type <span class="o">=</span> <span class="m">1</span><span class="p">,</span> main <span class="o">=</span> <span class="s">"Fig. 1. Variable Importance"</span><span class="p">)</span>
+</pre></div>
+
+<p><img src="https://github.com/kailex/predmachlearn/blob/master/figure/unnamed-chunk-5.png" alt=""></p>
+
+<p>With number of trees of 317 the Random Forest was successfully trained and the estimated OOB error rate (in sample error) for the training set was 0.52%. We don't need to do cross-validation as random forest uses bootstrap samples from the train set.</p>
+
+<h3>
+<a name="results" class="anchor" href="#results"><span class="octicon octicon-link"></span></a>Results</h3>
+
+<p>On the fig. 1 we can see the most important variables for the predicting model. </p>
+
+<table>
+<thead><tr>
+<th>Variable</th>
+<th>Mean Decrease in Accuracy</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>yaw_belt</td>
+<td>51.84860</td>
+</tr>
+<tr>
+<td>roll_belt</td>
+<td>45.92186</td>
+</tr>
+<tr>
+<td>pitch_belt</td>
+<td>43.11729</td>
+</tr>
+</tbody>
+</table><p>Let's plot these three variables. On the figures 2-4 we can see the relationship between those variables. We color grouped the points based on the 5 levels of activities quality. The figures show rather complicated patterns which cannot be linearly separated, thus, we used random forest.</p>
+
+<div class="highlight highlight-r"><pre>par<span class="p">(</span>mfrow <span class="o">=</span> <span class="kt">c</span><span class="p">(</span><span class="m">2</span><span class="p">,</span> <span class="m">2</span><span class="p">))</span>
+valid <span class="o">&lt;-</span> <span class="kt">data.frame</span><span class="p">(</span>valid<span class="p">)</span>
+plot<span class="p">(</span>valid<span class="o">$</span>yaw_belt<span class="p">,</span> valid<span class="o">$</span>roll_belt<span class="p">,</span> xlab <span class="o">=</span> <span class="s">"Yaw belt"</span><span class="p">,</span> ylab <span class="o">=</span> <span class="s">"Roll belt"</span><span class="p">,</span> 
+    main <span class="o">=</span> <span class="s">"Fig. 2"</span><span class="p">,</span> col <span class="o">=</span> <span class="kp">as.numeric</span><span class="p">(</span>validC<span class="p">),</span> pch <span class="o">=</span> <span class="m">19</span><span class="p">,</span> cex <span class="o">=</span> <span class="m">0.5</span><span class="p">)</span>
+
+plot<span class="p">(</span>valid<span class="o">$</span>yaw_belt<span class="p">,</span> valid<span class="o">$</span>pitch_belt<span class="p">,</span> xlab <span class="o">=</span> <span class="s">"Yaw belt"</span><span class="p">,</span> ylab <span class="o">=</span> <span class="s">"Pitch belt"</span><span class="p">,</span> 
+    main <span class="o">=</span> <span class="s">"Fig. 3"</span><span class="p">,</span> col <span class="o">=</span> <span class="kp">as.numeric</span><span class="p">(</span>validC<span class="p">),</span> pch <span class="o">=</span> <span class="m">19</span><span class="p">,</span> cex <span class="o">=</span> <span class="m">0.5</span><span class="p">)</span>
+
+plot<span class="p">(</span>valid<span class="o">$</span>roll_belt<span class="p">,</span> valid<span class="o">$</span>pitch_belt<span class="p">,</span> xlab <span class="o">=</span> <span class="s">"Roll belt"</span><span class="p">,</span> ylab <span class="o">=</span> <span class="s">"Pitch belt"</span><span class="p">,</span> 
+    main <span class="o">=</span> <span class="s">"Fig. 4"</span><span class="p">,</span> col <span class="o">=</span> <span class="kp">as.numeric</span><span class="p">(</span>validC<span class="p">),</span> pch <span class="o">=</span> <span class="m">19</span><span class="p">,</span> cex <span class="o">=</span> <span class="m">0.5</span><span class="p">)</span>
+plot.new<span class="p">()</span>
+legend<span class="p">(</span><span class="s">"center"</span><span class="p">,</span> legend <span class="o">=</span> <span class="kp">levels</span><span class="p">(</span>validC<span class="p">),</span> cex <span class="o">=</span> <span class="m">2</span><span class="p">,</span> text.col <span class="o">=</span> <span class="kp">seq_along</span><span class="p">(</span><span class="kp">levels</span><span class="p">(</span>validC<span class="p">)))</span>
+</pre></div>
+
+<p><img src="https://github.com/kailex/predmachlearn/blob/master/figure/unnamed-chunk-6.png" alt=""></p>
+
+<p>We tested out model on validation set and observed a confusion matrix for the validation set.</p>
+
+<div class="highlight highlight-r"><pre>predRF <span class="o">&lt;-</span> predict<span class="p">(</span>fitRF<span class="p">,</span> valid<span class="p">)</span>
+confusionMatrix<span class="p">(</span>predRF<span class="p">,</span> validC<span class="p">)</span>
+</pre></div>
+
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction    A    B    C    D    E
+##          A 1663   11    0    0    0
+##          B    0 1127   10    0    0
+##          C    0    2 1019   13    0
+##          D    0    0    1  967    0
+##          E    0    0    0    0 1071
+## 
+## Overall Statistics
+##                                         
+##                Accuracy : 0.994         
+##                  95% CI : (0.991, 0.996)
+##     No Information Rate : 0.283         
+##     P-Value [Acc &gt; NIR] : &lt;2e-16        
+##                                         
+##                   Kappa : 0.992         
+##  Mcnemar's Test P-Value : NA            
+## 
+## Statistics by Class:
+## 
+##                      Class: A Class: B Class: C Class: D Class: E
+## Sensitivity             1.000    0.989    0.989    0.987    1.000
+## Specificity             0.997    0.998    0.997    1.000    1.000
+## Pos Pred Value          0.993    0.991    0.985    0.999    1.000
+## Neg Pred Value          1.000    0.997    0.998    0.997    1.000
+## Prevalence              0.283    0.194    0.175    0.167    0.182
+## Detection Rate          0.283    0.192    0.173    0.164    0.182
+## Detection Prevalence    0.285    0.193    0.176    0.165    0.182
+## Balanced Accuracy       0.999    0.993    0.993    0.993    1.000
+</code></pre>
+
+<p>Out of sample error is about 0.63%. Finally we tested our model on the 20 test cases available in the test data. We got 100% prediction accuracy.</p>
+
+<div class="highlight highlight-r"><pre>predRFT <span class="o">&lt;-</span> predict<span class="p">(</span>fitRF<span class="p">,</span> test<span class="p">)</span>
+answer <span class="o">&lt;-</span> <span class="kp">as.character</span><span class="p">(</span>predRFT<span class="p">)</span>
+pml_write_files <span class="o">&lt;-</span> <span class="kr">function</span><span class="p">(</span>x<span class="p">)</span> <span class="p">{</span>
+    n <span class="o">&lt;-</span> <span class="kp">length</span><span class="p">(</span>x<span class="p">)</span>
+    <span class="kr">for</span> <span class="p">(</span>i <span class="kr">in</span> <span class="m">1</span><span class="o">:</span>n<span class="p">)</span> <span class="p">{</span>
+        filename <span class="o">&lt;-</span> <span class="kp">paste0</span><span class="p">(</span><span class="s">"problem_id_"</span><span class="p">,</span> i<span class="p">,</span> <span class="s">".txt"</span><span class="p">)</span>
+        write.table<span class="p">(</span>x<span class="p">[</span>i<span class="p">],</span> file <span class="o">&lt;-</span> filename<span class="p">,</span> quote <span class="o">=</span> <span class="kc">FALSE</span><span class="p">,</span> row.names <span class="o">=</span> <span class="kc">FALSE</span><span class="p">,</span> 
+            col.names <span class="o">=</span> <span class="kc">FALSE</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+pml_write_files<span class="p">(</span>answer<span class="p">)</span>
+</pre></div>
+
+<h3>
+<a name="conclusions" class="anchor" href="#conclusions"><span class="octicon octicon-link"></span></a>Conclusions</h3>
+
+<p>In this paper we proposed a predictive model based on Random Forest. This model provides high accuracy in identifying of activity quality. Also it reveals the most important variables for prediction.
+Some potential problems should be noted. As it's stated by the author, Random Forest does not need “cross-validation or a separate test set to get an unbiased estimate of the test set error” but that's true only for independent and identically-distributed data. Also we should mention that the measure of importance of variables can be biased. Thus, variable importance can be overestimated.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Predmachlearn maintained by <a href="https://github.com/kailex">kailex</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
