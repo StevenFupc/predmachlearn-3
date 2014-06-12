@@ -142,7 +142,7 @@ authors, the Random forest does not overfit. We built the model for the outcome 
 <div class="highlight highlight-r"><pre>varImpPlot<span class="p">(</span>fitRF<span class="p">,</span> n.var <span class="o">=</span> <span class="m">5</span><span class="p">,</span> type <span class="o">=</span> <span class="m">1</span><span class="p">,</span> main <span class="o">=</span> <span class="s">"Fig. 1. Variable Importance"</span><span class="p">)</span>
 </pre></div>
 
-<p><img src="figure/unnamed-chunk-5.png" alt="plot of chunk unnamed-chunk-5"></p>
+<p><img src="https://github.com/kailex/predmachlearn/blob/master/figure/unnamed-chunk-5.png" alt="plot of chunk unnamed-chunk-5"></p>
 
 <p>With number of trees of 317 the Random Forest was successfully trained and the estimated OOB error rate (in sample error) for the training set was 0.52%. We don't need to do cross-validation as random forest uses bootstrap samples from the train set.</p>
 
@@ -186,7 +186,7 @@ plot.new<span class="p">()</span>
 legend<span class="p">(</span><span class="s">"center"</span><span class="p">,</span> legend <span class="o">=</span> <span class="kp">levels</span><span class="p">(</span>validC<span class="p">),</span> cex <span class="o">=</span> <span class="m">2</span><span class="p">,</span> text.col <span class="o">=</span> <span class="kp">seq_along</span><span class="p">(</span><span class="kp">levels</span><span class="p">(</span>validC<span class="p">)))</span>
 </pre></div>
 
-<p><img src="figure/unnamed-chunk-6.png" alt="plot of chunk unnamed-chunk-6"></p>
+<p><img src="https://github.com/kailex/predmachlearn/blob/master/figure/unnamed-chunk-6.png" alt="plot of chunk unnamed-chunk-6"></p>
 
 <p>We tested out model on validation set and observed a confusion matrix for the validation set.</p>
 
