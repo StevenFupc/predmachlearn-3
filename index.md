@@ -55,7 +55,7 @@ test <- test[, sapply(test, is.numeric)]
 
 
 ### Confounders
-We identified variables with correlation over 0.9. This step allowed us to remove 3 additional columns from the each data set. Finally to build a predictive model we used 49 variables.
+We identified variables with correlation over 0.9. This step allowed us to remove 3 additional columns from the each data set. 
 
 ```r
 num.idx <- which(sapply(train, class) == "numeric")
@@ -76,7 +76,7 @@ test <- as.matrix(sapply(test, as.numeric))
 
 ### Statistical Modeling
 A simple linear or logistic regression is not a proper choice for building a predictive model with high-dimensional input data. We chose Random Forest from the __randomForest__ package. [“It runs efficiently on large data bases and can handle thousands of input variables without variable deletion. It gives estimates of what variables are important in the classification. It has methods for balancing error in class population unbalanced data sets”][rf1]. As stated by the
-authors, the Random forest does not overfit. Having built the model we observed a confusion matrix for the validation set.
+authors, the Random forest does not overfit. We built the model for the outcome variable *classe* using 49 predictive variables. 
 
 ```r
 library(randomForest, quietly = T)
@@ -110,7 +110,7 @@ yaw_belt          | 46.85290
 roll_belt         | 42.83677
 magnet_dumbbell_z | 41.57366
 
-Let's plot these three variables. On the figures 2-4 we can see the relationship between those variables. We color grouped the points based on the 5 levels of activities quality. The figures show rather complicated patterns which cannot be lineary separated, thus, we use random forest.
+Let's plot these three variables. On the figures 2-4 we can see the relationship between those variables. We color grouped the points based on the 5 levels of activities quality. The figures show rather complicated patterns which cannot be linearly separated, thus, we used random forest.
 
 
 ```r
@@ -130,7 +130,7 @@ legend("center", legend = levels(validC), cex = 2, text.col = seq_along(levels(v
 
 ![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6.png) 
 
-We tested out model on validation set:
+We tested out model on validation set and observed a confusion matrix for the validation set.
 
 ```r
 predRF <- predict(fitRF, valid)
@@ -142,36 +142,36 @@ confusionMatrix(predRF, validC)
 ## 
 ##           Reference
 ## Prediction    A    B    C    D    E
-##          A 1673    3    0    0    0
-##          B    0 1134    2    0    0
-##          C    0    2 1023    2    0
-##          D    0    0    0  986    0
-##          E    1    0    0    0 1058
+##          A 1658   11    0    0    0
+##          B    0 1135    5    0    0
+##          C    2    4 1007   18    1
+##          D    0    0    0  942    7
+##          E    0    0    0    1 1093
 ## 
 ## Overall Statistics
 ##                                         
-##                Accuracy : 0.998         
-##                  95% CI : (0.997, 0.999)
-##     No Information Rate : 0.285         
+##                Accuracy : 0.992         
+##                  95% CI : (0.989, 0.994)
+##     No Information Rate : 0.282         
 ##     P-Value [Acc > NIR] : <2e-16        
 ##                                         
-##                   Kappa : 0.998         
+##                   Kappa : 0.989         
 ##  Mcnemar's Test P-Value : NA            
 ## 
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity             0.999    0.996    0.998    0.998    1.000
-## Specificity             0.999    1.000    0.999    1.000    1.000
-## Pos Pred Value          0.998    0.998    0.996    1.000    0.999
-## Neg Pred Value          1.000    0.999    1.000    1.000    1.000
-## Prevalence              0.285    0.194    0.174    0.168    0.180
-## Detection Rate          0.284    0.193    0.174    0.168    0.180
-## Detection Prevalence    0.285    0.193    0.175    0.168    0.180
-## Balanced Accuracy       0.999    0.998    0.999    0.999    1.000
+## Sensitivity             0.999    0.987    0.995    0.980    0.993
+## Specificity             0.997    0.999    0.995    0.999    1.000
+## Pos Pred Value          0.993    0.996    0.976    0.993    0.999
+## Neg Pred Value          1.000    0.997    0.999    0.996    0.998
+## Prevalence              0.282    0.195    0.172    0.163    0.187
+## Detection Rate          0.282    0.193    0.171    0.160    0.186
+## Detection Prevalence    0.284    0.194    0.175    0.161    0.186
+## Balanced Accuracy       0.998    0.993    0.995    0.989    0.996
 ```
 
-Out of sample error is about 0.2%. Finally we tested our model on the 20 test cases available in the test data. We got 100% prediction accuracy.
+Out of sample error is about 0.8%. Finally we tested our model on the 20 test cases available in the test data. We got 100% prediction accuracy.
 
 ```r
 predRFT <- predict(fitRF, test)

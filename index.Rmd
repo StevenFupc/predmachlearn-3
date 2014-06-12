@@ -50,7 +50,7 @@ test <- test[,sapply(test, is.numeric)]
 ```
 
 ### Confounders
-We identified variables with correlation over 0.9. This step allowed us to remove 3 additional columns from the each data set. Finally to build a predictive model we used 49 variables.
+We identified variables with correlation over 0.9. This step allowed us to remove 3 additional columns from the each data set. 
 ```{r echo=TRUE}
 num.idx <- which(sapply(train, class) == "numeric")
 descrCorr <- abs(cor(train[,num.idx]))
@@ -66,7 +66,7 @@ test <- as.matrix(sapply(test, as.numeric))
 
 ### Statistical Modeling
 A simple linear or logistic regression is not a proper choice for building a predictive model with high-dimensional input data. We chose Random Forest from the __randomForest__ package. [“It runs efficiently on large data bases and can handle thousands of input variables without variable deletion. It gives estimates of what variables are important in the classification. It has methods for balancing error in class population unbalanced data sets”][rf1]. As stated by the
-authors, the Random forest does not overfit. Having built the model we observed a confusion matrix for the validation set.
+authors, the Random forest does not overfit. We built the model for the outcome variable *classe* using 49 predictive variables. 
 ```{r echo=TRUE}
 library(randomForest, quietly=T)
 fitRF <- randomForest(x=train, y=trainC, importance=T, ntree=317)
@@ -86,7 +86,7 @@ yaw_belt          | 46.85290
 roll_belt         | 42.83677
 magnet_dumbbell_z | 41.57366
 
-Let's plot these three variables. On the figures 2-4 we can see the relationship between those variables. We color grouped the points based on the 5 levels of activities quality. The figures show rather complicated patterns which cannot be lineary separated, thus, we use random forest.
+Let's plot these three variables. On the figures 2-4 we can see the relationship between those variables. We color grouped the points based on the 5 levels of activities quality. The figures show rather complicated patterns which cannot be linearly separated, thus, we used random forest.
 
 ```{r fig.width=11, fig.height=8}
 par(mfrow=c(2,2))
@@ -108,13 +108,13 @@ plot(valid$roll_belt,valid$magnet_dumbbell_z,
 plot.new(); 
 legend("center", legend=levels(validC), cex=2, text.col=seq_along(levels(validC)))
 ```
-We tested out model on validation set:
+We tested out model on validation set and observed a confusion matrix for the validation set.
 ```{r echo=TRUE}
 predRF <- predict(fitRF, valid)
 confusionMatrix(predRF, validC)
 ```
-Out of sample error is about 0.2%. Finally we tested our model on the 20 test cases available in the test data. We got 100% prediction accuracy.
-```{r echo=TRUE}
+Out of sample error is about 0.8%. Finally we tested our model on the 20 test cases available in the test data. We got 100% prediction accuracy.
+```{r echo=TRUE, eval=FALSE}
 predRFT <- predict(fitRF, test)
 answer <- as.character(predRFT)
 pml_write_files <- function(x){
